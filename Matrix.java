@@ -44,6 +44,7 @@ class Matrix {
         int[][] b;
         // Numbers of row/col
         int n = rtotal == 8 ? 2 : 4;
+        int partSize = size / n;
 
         if (rank == 0) {
             int[][][][] qa = msplit(ma, n * n);
@@ -68,7 +69,6 @@ class Matrix {
                 }
             }
         } else {
-            int partSize = size / n;
             buffer = new int[partSize * partSize];
             MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, 0, 1);
             a = inflate(partSize, buffer);
@@ -90,7 +90,7 @@ class Matrix {
             // Receive results
             for (int i = 1; i < n; i++) {
                 MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, rank + i, 1);
-                partial[n] = inflate(buffer);
+                partial[n] = inflate(partSize, buffer);
             }
 
             // Sum up matrices
@@ -108,7 +108,7 @@ class Matrix {
                     for (int col = 0; col < n; col++) {
                         int src = row * n * n + col * n;
                         MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, src, 1);
-                        qc[row][col] = inflate(buffer);
+                        qc[row][col] = inflate(partSize, buffer);
                     }
                 }
 
