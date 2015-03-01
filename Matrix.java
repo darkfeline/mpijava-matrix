@@ -22,10 +22,13 @@ class Matrix {
             System.exit(1);
         }
 
+        int[][] ma;
+        int[][] mb;
+
         // Read in matrices and distribute size to every process.
         if (rank == 0) {
-            int[][] ma = readMatrix(args[1]);
-            int[][] mb = readMatrix(args[2]);
+            ma = readMatrix(args[1]);
+            mb = readMatrix(args[2]);
             size = ma.length;
             buffer[0] = size;
             for (int i = 1; i < rtotal; i++) {
