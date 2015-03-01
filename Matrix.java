@@ -60,7 +60,6 @@ class Matrix {
 
             // Matrix A
             reader = new BufferedReader(new FileReader(args[1]));
-            line = reader.readLine();
             lineno = 0;
             while ((line = reader.readLine()) != null) {
                 int[] values = parseLine(line);
@@ -80,7 +79,6 @@ class Matrix {
 
             // Matrix B
             reader = new BufferedReader(new FileReader(args[2]));
-            line = reader.readLine();
             lineno = 0;
             while ((line = reader.readLine()) != null) {
                 int[] values = parseLine(line);
