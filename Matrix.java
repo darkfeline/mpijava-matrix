@@ -100,17 +100,13 @@ class Matrix {
                 buffer = new int[partSize];
                 MPI.COMM_WORLD.Recv(buffer, 0, partSize, MPI.INT, 0, 1);
                 a[row] = buffer;
-                System.out.printf("%d: recv a %d\n", rank, row);
             }
             for (int row = 0; row < partSize; row++) {
                 buffer = new int[partSize];
                 MPI.COMM_WORLD.Recv(buffer, 0, partSize, MPI.INT, 0, 1);
                 b[row] = buffer;
-                System.out.printf("%d: recv b %d\n", rank, row);
             }
         }
-
-        System.out.printf("%d: dist done\n", rank);
 
         // Multiply own matrices
         int[][] c;
