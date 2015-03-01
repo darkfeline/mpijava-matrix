@@ -73,6 +73,7 @@ class Matrix {
                         }
                     }
                 }
+                System.err.printf("%d: send a %d done", rank, lineno);
                 lineno++;
             }
 
@@ -92,6 +93,7 @@ class Matrix {
                         }
                     }
                 }
+                System.err.printf("%d: send b %d done", rank, lineno);
                 lineno++;
             }
         } else {
