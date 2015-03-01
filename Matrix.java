@@ -151,7 +151,7 @@ class Matrix {
             int[][][][] qb = msplit(b, 4);
 
             int n = 2;
-            int[][][][] qc = new int[n][n];
+            int[][][][] qc = new int[n][n][][];
             partial = new int[n][n][n][][];
 
             for (int row = 0; row < n; row++) {
