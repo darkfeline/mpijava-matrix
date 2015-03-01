@@ -19,7 +19,7 @@ class Matrix {
         int size;
         int[] buffer = new int[1];
 
-        if (rtotal != 8 || rtotal != 64) {
+        if (rtotal != 8 && rtotal != 64) {
             System.err.printf("Wrong number of processes: %d", rtotal);
             System.exit(1);
         }
