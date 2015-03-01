@@ -8,7 +8,9 @@ import java.lang.StringBuilder;
 import mpi.* ;
 
 class Matrix {
-    static public void main(String[] args) throws MPIException {
+    static public void main(String[] args) throws MPIException,
+                                                  FileNotFoundException,
+                                                  IOException {
 
         MPI.Init(args) ;
 
