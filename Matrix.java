@@ -8,9 +8,7 @@ import java.lang.StringBuilder;
 import mpi.* ;
 
 class Matrix {
-    static public void main(String[] args) throws MPIException,
-                                                  FileNotFoundException,
-                                                  IOException {
+    static public void main(String[] args) throws MPIException {
 
         MPI.Init(args) ;
 
@@ -277,7 +275,8 @@ class Matrix {
     /*
      * Read matrix from file.
      */
-    static int[][] readMatrix(String file) {
+    static int[][] readMatrix(String file) throws FileNotFoundException,
+                                                  IOException {
         BufferedReader reader;
         reader = new BufferedReader(new FileReader(file));
 
