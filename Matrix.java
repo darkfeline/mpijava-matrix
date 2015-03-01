@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.StringBuilder;
+import java.util.Arrays;
 
 import mpi.* ;
 
@@ -88,7 +89,7 @@ class Matrix {
                     for (int i = 0; i < n; i++) {
                         int dst = i * n * n + col * n + row;
                         if (dst == 0) {  // send to self
-                            b[lineno] = values.copyOf(partSize);
+                            b[lineno] = Arrays.copyOf(values, partSize);
                         } else {
                             MPI.COMM_WORLD.Send(values, col * partSize, partSize, MPI.INT, dst, 1);
                         }
