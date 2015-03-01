@@ -104,10 +104,10 @@ class Matrix {
             // Receive results
             for (int i = 1; i < n; i++) {
                 MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, rank + i, 1);
+
+                System.out.printf("%d: join received from %d.\n", rank, rank+i);
                 partial[i] = inflate(partSize, buffer);
             }
-
-            System.out.printf("%d: Finished recv for join.\n", rank);
 
             // Sum up matrices
             c = msum(partial);
