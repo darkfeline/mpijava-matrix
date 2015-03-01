@@ -104,7 +104,7 @@ class Matrix {
             // Receive results
             for (int i = 1; i < n; i++) {
                 MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, rank + i, 1);
-                partial[n] = inflate(partSize, buffer);
+                partial[i] = inflate(partSize, buffer);
             }
 
             // Sum up matrices
