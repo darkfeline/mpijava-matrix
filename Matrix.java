@@ -91,7 +91,6 @@ class Matrix {
                         if (dst == 0) {  // send to self
                             b[lineno] = Arrays.copyOf(values, partSize);
                         } else {
-                            if (dst == 8) System.out.printf("%d %d %d", row, col, i);
                             MPI.COMM_WORLD.Send(values, col * partSize, partSize, MPI.INT, dst, 1);
                         }
                     }
