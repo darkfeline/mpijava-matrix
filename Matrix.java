@@ -72,7 +72,7 @@ class Matrix {
                         if (dst == 0) {  // send to self
                             a[lineno] = Arrays.copyOf(values, partSize);
                         } else {
-                            System.out.printf("%d: send a %d", rank, dst);
+                            System.out.printf("%d: send a %d\n", rank, dst);
                             MPI.COMM_WORLD.Send(values, col * partSize, partSize, MPI.INT, dst, 1);
                         }
                     }
@@ -92,7 +92,7 @@ class Matrix {
                         if (dst == 0) {  // send to self
                             b[lineno] = Arrays.copyOf(values, partSize);
                         } else {
-                            System.out.printf("%d: send b %d", rank, dst);
+                            System.out.printf("%d: send b %d\n", rank, dst);
                             MPI.COMM_WORLD.Send(values, col * partSize, partSize, MPI.INT, dst, 1);
                         }
                     }
