@@ -95,7 +95,7 @@ class Matrix {
         System.out.printf("%d: Finished multiply.\n", rank);
 
         // Send partial solutions to joining processes
-        if ((rank % n) == 0) {  // Parent process
+        if ((rank % n) == 0) {  // Join process
             int[][][] partial = new int[n][][];
 
             // Send to self
