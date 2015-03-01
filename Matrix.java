@@ -107,6 +107,8 @@ class Matrix {
                 partial[i] = inflate(partSize, buffer);
             }
 
+            System.out.printf("%d: Finished recv for join.\n", rank);
+
             // Sum up matrices
             c = msum(partial);
 
