@@ -329,7 +329,7 @@ class Matrix {
      * Parse values in line.
      */
     static int[] parseLine(String line) {
-        return parseTokens(readTokens);
+        return parseTokens(readTokens(line));
     }
 
     /*
