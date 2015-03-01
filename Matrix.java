@@ -161,11 +161,10 @@ class Matrix {
                         sb.append(" ");
                     }
                     System.out.println(sb.toString());
-                    System.err.printf("%d: line %d done\n", rank, lineno);
                 }
             } else {  // sum process send to root
                 buffer = deflate(c);
-                for (int i = 0; i < n; i++) {
+                for (int i = 0; i < partSize; i++) {
                     MPI.COMM_WORLD.Send(buffer, i * partSize, partSize, MPI.INT, 0, 1);
                 }
                 System.err.printf("%d: sum done\n", rank);
@@ -173,7 +172,7 @@ class Matrix {
         } else {  // Child process
             int dst = (rank / n) * n;
             buffer = deflate(c);
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < partSize; i++) {
                 MPI.COMM_WORLD.Send(buffer, i * partSize, partSize, MPI.INT, dst, 1);
             }
             System.err.printf("%d: child done\n", rank);
