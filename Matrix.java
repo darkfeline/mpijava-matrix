@@ -68,7 +68,7 @@ class Matrix {
                 for (int col = 0; col < n; col++) {
                     for (int i = 0; i < n; i++) {
                         int dst = row * n * n + i * n + col;
-                        System.out.printf("%d: %d %d %d -> %d", rank, row, i, col, dst);
+                        System.out.printf("%d: %d %d %d -> %d\n", rank, row, i, col, dst);
                         if (dst == 0) {  // send to self
                             a[lineno] = Arrays.copyOf(values, partSize);
                         } else {
@@ -89,7 +89,7 @@ class Matrix {
                 for (int col = 0; col < n; col++) {
                     for (int i = 0; i < n; i++) {
                         int dst = i * n * n + col * n + row;
-                        System.out.printf("%d: %d %d %d -> %d", rank, i, col, row, dst);
+                        System.out.printf("%d: %d %d %d -> %d\n", rank, i, col, row, dst);
                         if (dst == 0) {  // send to self
                             b[lineno] = Arrays.copyOf(values, partSize);
                         } else {
@@ -104,13 +104,13 @@ class Matrix {
                 buffer = new int[partSize];
                 MPI.COMM_WORLD.Recv(buffer, 0, partSize, MPI.INT, 0, 1);
                 a[row] = buffer;
-                System.out.printf("%d: recv a %d", rank, row);
+                System.out.printf("%d: recv a %d\n", rank, row);
             }
             for (int row = 0; row < partSize; row++) {
                 buffer = new int[partSize];
                 MPI.COMM_WORLD.Recv(buffer, 0, partSize, MPI.INT, 0, 1);
                 b[row] = buffer;
-                System.out.printf("%d: recv b %d", rank, row);
+                System.out.printf("%d: recv b %d\n", rank, row);
             }
         }
 
