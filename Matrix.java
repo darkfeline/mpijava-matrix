@@ -88,7 +88,7 @@ class Matrix {
                     for (int i = 0; i < n; i++) {
                         int dst = i * n * n + col * n + row;
                         if (dst == 0) {  // send to self
-                            b[lineno] = Arrays.copyOf(values, partSize);
+                            b[lineno] = values.copyOf(partSize);
                         } else {
                             MPI.COMM_WORLD.Send(values, col * partSize, partSize, MPI.INT, dst, 1);
                         }
