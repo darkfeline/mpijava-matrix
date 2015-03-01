@@ -131,31 +131,29 @@ class Matrix {
             // Sum up matrices
             c = msum(partial);
 
-            // Send to root to join
+            // Send to root to print
             if (rank == 0) {
-                int[][][][] qc = new int[n][n][][];
-
-                // Send to self
-                qc[0][0] = c;
-
-                // Receive from others
-                for (int row = 0; row < n; row++) {
+                for (int lineno = 0; lineno < size; lineno++) {
+                    int row = lineno / partSize;
+                    int[] values = new int[size];
                     for (int col = 0; col < n; col++) {
                         int src = row * n * n + col * n;
                         if (src == 0) {
-                            continue;
+                            for (int i = 0; i < partSize; i++) {
+                                values[i] = c[lineno][i];
+                            }
+                        } else {
+                            MPI.COMM_WORLD.Recv(values, col * partSize, partSize, MPI.INT, src, 1);
                         }
-                        MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, src, 1);
-                        qc[row][col] = inflate(partSize, buffer);
                     }
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < values.length; i++) {
+                        sb.append(values[i]);
+                        sb.append(" ");
+                    }
+                    System.out.println(sb.toString());
                 }
-
-                // Join
-                int[][] mc = mjoin(qc);
-
-                // Print
-                printm(mc);
-            } else {
+            } else {  // sum process send to root
                 buffer = deflate(c);
                 MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, 0, 1);
             }
@@ -292,22 +290,6 @@ class Matrix {
             }
         }
         return result;
-    }
-
-    /*
-     * Print matrix.
-     */
-    static void printm(int[][] m) {
-        StringBuilder sb;
-        int size = m.length;
-        for (int i = 0; i < size; i++) {
-            sb = new StringBuilder();
-            for (int j = 0; j < size; j++) {
-                sb.append(m[i][j]);
-                sb.append(" ");
-            }
-            System.out.println(sb.toString());
-        }
     }
 
     /*
