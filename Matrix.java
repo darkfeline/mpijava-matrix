@@ -112,7 +112,6 @@ class Matrix {
         int[][] c;
         c = multiply(a, b);
 
-
         // Send partial solutions to sum processes
         buffer = new int[partSize * partSize];
         if ((rank % n) == 0) {  // sum process
