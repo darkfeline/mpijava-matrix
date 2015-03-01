@@ -161,6 +161,7 @@ class Matrix {
                         sb.append(" ");
                     }
                     System.out.println(sb.toString());
+                    System.err.printf("%d: line %d done\n", rank, lineno);
                 }
             } else {  // sum process send to root
                 buffer = deflate(c);
