@@ -40,7 +40,7 @@ class Matrix {
             size = buffer[0];
         }
 
-        System.out.printf("%d: size\n", rank);
+        System.err.printf("%d: size\n", rank);
 
         // Distribute quadrants to every process.
         // Numbers of row/col
@@ -110,13 +110,13 @@ class Matrix {
             }
         }
 
-        System.out.printf("%d: dist\n", rank);
+        System.err.printf("%d: dist\n", rank);
 
         // Multiply own matrices
         int[][] c;
         c = multiply(a, b);
 
-        System.out.printf("%d: mult\n", rank);
+        System.err.printf("%d: mult\n", rank);
 
         // Send partial solutions to sum processes
         buffer = new int[partSize * partSize];
@@ -167,6 +167,7 @@ class Matrix {
                 for (int i = 0; i < n; i++) {
                     MPI.COMM_WORLD.Send(buffer, i * partSize, partSize, MPI.INT, 0, 1);
                 }
+                System.err.printf("%d: sum done\n", rank);
             }
         } else {  // Child process
             int dst = (rank / n) * n;
@@ -174,6 +175,7 @@ class Matrix {
             for (int i = 0; i < n; i++) {
                 MPI.COMM_WORLD.Send(buffer, i * partSize, partSize, MPI.INT, dst, 1);
             }
+            System.err.printf("%d: child done\n", rank);
         }
 
         MPI.Finalize();
