@@ -64,15 +64,15 @@ class Matrix {
             reader = new BufferedReader(new FileReader(args[1]));
             lineno = 0;
             while ((line = reader.readLine()) != null) {
-                int[] values = parseLine(line);
+                buffer = parseLine(line);
                 int row = lineno / partSize;
                 for (int col = 0; col < n; col++) {
                     for (int i = 0; i < n; i++) {
                         int dst = row * n * n + i * n + col;
                         if (dst == 0) {  // send to self
-                            a[lineno] = Arrays.copyOf(values, partSize);
+                            a[lineno] = Arrays.copyOf(buffer, partSize);
                         } else {
-                            MPI.COMM_WORLD.Send(values, col * partSize, partSize, MPI.INT, dst, 1);
+                            MPI.COMM_WORLD.Send(buffer, col * partSize, partSize, MPI.INT, dst, 1);
                         }
                     }
                 }
@@ -83,15 +83,15 @@ class Matrix {
             reader = new BufferedReader(new FileReader(args[2]));
             lineno = 0;
             while ((line = reader.readLine()) != null) {
-                int[] values = parseLine(line);
+                buffer = parseLine(line);
                 int row = lineno / partSize;
                 for (int col = 0; col < n; col++) {
                     for (int i = 0; i < n; i++) {
                         int dst = i * n * n + col * n + row;
                         if (dst == 0) {  // send to self
-                            b[lineno] = Arrays.copyOf(values, partSize);
+                            b[lineno] = Arrays.copyOf(buffer, partSize);
                         } else {
-                            MPI.COMM_WORLD.Send(values, col * partSize, partSize, MPI.INT, dst, 1);
+                            MPI.COMM_WORLD.Send(buffer, col * partSize, partSize, MPI.INT, dst, 1);
                         }
                     }
                 }
@@ -140,32 +140,40 @@ class Matrix {
             if (rank == 0) {
                 for (int lineno = 0; lineno < size; lineno++) {
                     int row = lineno / partSize;
-                    int[] values = new int[size];
+                    buffer = new int[size];
+
+                    // Receive all parts of line
                     for (int col = 0; col < n; col++) {
                         int src = row * n * n + col * n;
                         if (src == 0) {
                             for (int i = 0; i < partSize; i++) {
-                                values[i] = c[lineno][i];
+                                buffer[i] = c[lineno][i];
                             }
                         } else {
-                            MPI.COMM_WORLD.Recv(values, col * partSize, partSize, MPI.INT, src, 1);
+                            MPI.COMM_WORLD.Recv(buffer, col * partSize, partSize, MPI.INT, src, 1);
                         }
                     }
+
+                    // Print line
                     StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < values.length; i++) {
-                        sb.append(values[i]);
+                    for (int i = 0; i < buffer.length; i++) {
+                        sb.append(buffer[i]);
                         sb.append(" ");
                     }
                     System.out.println(sb.toString());
                 }
             } else {  // sum process send to root
                 buffer = deflate(c);
-                MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, 0, 1);
+                for (int i = 0; i < n; i++) {
+                    MPI.COMM_WORLD.Send(buffer, i * partSize, partSize, MPI.INT, dst, 1);
+                }
             }
         } else {  // Child process
             int dst = (rank / n) * n;
             buffer = deflate(c);
-            MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, dst, 1);
+            for (int i = 0; i < n; i++) {
+                MPI.COMM_WORLD.Send(buffer, i * partSize, partSize, MPI.INT, dst, 1);
+            }
         }
 
         MPI.Finalize();
