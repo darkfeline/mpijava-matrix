@@ -229,7 +229,7 @@ class Matrix {
      * Split a matrix into n * n parts.
      */
     static int[][][][] msplit(int[][] m, int n) {
-        int size = ma.length;
+        int size = m.length;
         int partSize = size / n;
         int[][][][] result = new int[n][n][partSize][partSize];
         for (int i = 0; i < size; i++) {
@@ -286,11 +286,11 @@ class Matrix {
 
         // Build matrix
         int[][] m = new int[size][size];
-        ma[0] = values;
+        m[0] = values;
         int i = 1;
         while ((line = reader.readLine()) != null) {
             values = parseTokens(readTokens(line));
-            ma[i] = values;
+            m[i] = values;
             i++;
         }
 
