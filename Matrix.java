@@ -144,8 +144,8 @@ class Matrix {
 
         // Base case.
         if (a.length == 1) {
-            c = new int[1][1][1];
-            partial[0][0][0] = a[0][0] * b[0][0];
+            partial = new int[1][1][1][1][1];
+            partial[0][0][0][0][0] = a[0][0] * b[0][0];
         } else {
             int[][][][] qa = msplit(a, 4);
             int[][][][] qb = msplit(b, 4);
