@@ -68,11 +68,12 @@ class Matrix {
                 }
             }
         } else {
-            buffer = new int[(size * size) / (n * n)];
+            int partSize = size / n;
+            buffer = new int[partSize * partSize];
             MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, 0, 1);
-            a = inflate(buffer);
+            a = inflate(partSize, buffer);
             MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, 0, 1);
-            b = inflate(buffer);
+            b = inflate(partSize, buffer);
         }
 
         // Multiply own matrices
@@ -200,8 +201,7 @@ class Matrix {
     /*
      * Restore array to matrix.
      */
-    static int[][] inflate(int[] m) {
-        int size = Math.sqrt(m.length);
+    static int[][] inflate(int size, int[] m) {
         int[][] result = new int [size][size];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
