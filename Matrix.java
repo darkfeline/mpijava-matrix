@@ -165,7 +165,7 @@ class Matrix {
             } else {  // sum process send to root
                 buffer = deflate(c);
                 for (int i = 0; i < n; i++) {
-                    MPI.COMM_WORLD.Send(buffer, i * partSize, partSize, MPI.INT, dst, 1);
+                    MPI.COMM_WORLD.Send(buffer, i * partSize, partSize, MPI.INT, 0, 1);
                 }
             }
         } else {  // Child process
