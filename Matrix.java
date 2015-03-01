@@ -141,13 +141,13 @@ class Matrix {
             } else {
                 buffer = deflate(c);
                 MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, 0, 1);
-                System.out.printf("%d: Finished final send.\n", rank);
+                System.out.printf("%d: Finished final join send.\n", rank);
             }
         } else {  // Child process
             int dst = rank / n;
             buffer = deflate(c);
             MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, dst, 1);
-            System.out.printf("%d: Finished final send.\n", rank);
+            System.out.printf("%d: Finished final child send.\n", rank);
         }
 
         MPI.Finalize();
