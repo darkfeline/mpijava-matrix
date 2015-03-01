@@ -261,6 +261,7 @@ class Matrix {
      */
     static void printm(int[][] m) {
         StringBuilder sb;
+        int size = m.length;
         for (int i = 0; i < size; i++) {
             sb = new StringBuilder();
             for (int j = 0; j < size; j++) {
