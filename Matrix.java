@@ -105,7 +105,6 @@ class Matrix {
             for (int i = 1; i < n; i++) {
                 MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, rank + i, 1);
 
-                System.out.printf("%d: join received from %d.\n", rank, rank+i);
                 partial[i] = inflate(partSize, buffer);
             }
 
@@ -146,7 +145,7 @@ class Matrix {
                 System.out.printf("%d: Finished final join send.\n", rank);
             }
         } else {  // Child process
-            int dst = rank / n;
+            int dst = (rank / n) * n;
             buffer = deflate(c);
             MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, dst, 1);
             System.out.printf("%d: Finished final child send.\n", rank);
