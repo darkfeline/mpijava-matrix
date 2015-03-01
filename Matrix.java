@@ -20,12 +20,14 @@ class Matrix {
         int[] buffer = new int[1];
 
         if (rtotal != 8 && rtotal != 64) {
-            System.err.printf("Wrong number of processes: %d", rtotal);
+            System.err.printf("Wrong number of processes: %d\n", rtotal);
             System.exit(1);
         }
 
         int[][] ma = new int[0][0];
         int[][] mb = new int[0][0];
+
+        System.out.println("Started.");
 
         // Read in matrices and distribute size to every process.
         if (rank == 0) {
@@ -40,6 +42,8 @@ class Matrix {
             MPI.COMM_WORLD.Recv(buffer, 0, 1, MPI.INT, 0, 1);
             size = buffer[0];
         }
+
+        System.out.printf("%d: Finished initial read.\n", rank);
 
         // Distribute quadrants to every process.
         int[][] a;
@@ -78,9 +82,13 @@ class Matrix {
             b = inflate(partSize, buffer);
         }
 
+        System.out.printf("%d: Finished distribute.\n", rank);
+
         // Multiply own matrices
         int[][] c;
         c = multiply(a, b);
+
+        System.out.printf("%d: Finished multiply.\n", rank);
 
         // Send partial solutions to joining processes
         if ((rank % n) == 0) {  // Parent process
@@ -98,6 +106,8 @@ class Matrix {
             // Sum up matrices
             c = msum(partial);
 
+            System.out.printf("%d: Finished sum.\n", rank);
+
             // Send to root to join
             if (rank == 0) {
                 int[][][][] qc = new int[n][n][][];
@@ -114,6 +124,8 @@ class Matrix {
                     }
                 }
 
+                System.out.printf("%d: Finished final recv.\n", rank);
+
                 // Join
                 int[][] mc = mjoin(qc);
 
@@ -122,11 +134,13 @@ class Matrix {
             } else {
                 buffer = deflate(c);
                 MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, 0, 1);
+                System.out.printf("%d: Finished final send.\n", rank);
             }
         } else {  // Child process
             int dst = rank / n;
             buffer = deflate(c);
             MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, dst, 1);
+            System.out.printf("%d: Finished final send.\n", rank);
         }
 
         MPI.Finalize();
