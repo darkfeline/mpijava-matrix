@@ -174,9 +174,7 @@ class Matrix {
         } else {  // Child process
             int dst = (rank / n) * n;
             buffer = deflate(c);
-            for (int i = 0; i < partSize; i++) {
-                MPI.COMM_WORLD.Send(buffer, i * partSize, partSize, MPI.INT, dst, 1);
-            }
+            MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, dst, 1);
             System.err.printf("%d: child done\n", rank);
         }
 
