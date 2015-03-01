@@ -44,7 +44,7 @@ class Matrix {
 
         // Distribute quadrants to every process.
         // Numbers of row/col
-        int n = rtotal == 8 ? 2 : 4;
+        int n = (rtotal == 8) ? 2 : 4;
         int partSize = size / n;
         int[][] a = new int[partSize][partSize];
         int[][] b = new int[partSize][partSize];
