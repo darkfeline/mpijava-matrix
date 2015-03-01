@@ -27,11 +27,9 @@ class Matrix {
         int[][] ma = new int[0][0];
         int[][] mb = new int[0][0];
 
-        // Read in matrices and distribute size to every process.
+        // Distribute size to every process.
         if (rank == 0) {
-            ma = readMatrix(args[1]);
-            mb = readMatrix(args[2]);
-            size = ma.length;
+            size = readSize(args[1]);
             buffer[0] = size;
             for (int i = 1; i < rtotal; i++) {
                 MPI.COMM_WORLD.Send(buffer, 0, 1, MPI.INT, i, 1);
@@ -42,52 +40,83 @@ class Matrix {
         }
 
         // Distribute quadrants to every process.
-        int[][] a;
-        int[][] b;
         // Numbers of row/col
         int n = rtotal == 8 ? 2 : 4;
         int partSize = size / n;
-
+        int[][] a = new int[partSize][partSize];
+        int[][] b = new int[partSize][partSize];
         if (rank == 0) {
-            int[][][][] qa = msplit(ma, n);
-            int[][][][] qb = msplit(mb, n);
+            String line;
+            int lineno;
+            BufferedReader reader;
 
-            // Send to self
-            a = qa[0][0];
-            b = qb[0][0];
+            // Process [row][col][i] gets [row][i] from A and [i][col] from B
+            // Thus [row][col] from A goes to process [row][i][col]
+            // Thus [row][col] from B goes to process [i][col][row]
+            // I wish I had a better grasp of linear algebra here...
+            // It's mathematically more sensible to do [row][i][col] for process,
+            // but we need to sum up the array [row][col] for i, so...
 
-            for (int row = 0; row < n; row++) {
+            // Matrix A
+            reader = new BufferedReader(new FileReader(args[1]));
+            line = reader.readLine();
+            lineno = 0;
+            while ((line = aread.readLine()) != null) {
+                int[] values = parseLine(line);
+                int row = lineno / partSize;
                 for (int col = 0; col < n; col++) {
                     for (int i = 0; i < n; i++) {
-                        // Destination process
-                        int dst = row * n * n + col * n + i;
-                        if (dst == 0) {
-                            continue;
+                        int dst = row * n * n + i * n + col;
+                        if (dst == 0) {  // send to self
+                            a[lineno] = Arrays.copyOf(values, partSize);
+                        } else {
+                            MPI.COMM_WORLD.Send(values, col * partSize, partSize, MPI.INT, dst, 1);
                         }
-
-                        // Send row, i of A
-                        buffer = deflate(qa[row][i]);
-                        MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, dst, 1);
-                        // Send i, col of B
-                        buffer = deflate(qb[i][col]);
-                        MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, dst, 1);
                     }
                 }
+                lineno++;
+            }
+
+            // Matrix B
+            reader = new BufferedReader(new FileReader(args[2]));
+            line = reader.readLine();
+            lineno = 0;
+            while ((line = aread.readLine()) != null) {
+                int[] values = parseLine(line);
+                int row = lineno / partSize;
+                for (int col = 0; col < n; col++) {
+                    for (int i = 0; i < n; i++) {
+                        int dst = i * n * n + col * n + row;
+                        if (dst == 0) {  // send to self
+                            b[lineno] = Arrays.copyOf(values, partSize);
+                        } else {
+                            MPI.COMM_WORLD.Send(values, col * partSize, partSize, MPI.INT, dst, 1);
+                        }
+                    }
+                }
+                lineno++;
             }
         } else {
-            buffer = new int[partSize * partSize];
-            MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, 0, 1);
-            a = inflate(partSize, buffer);
-            MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, 0, 1);
-            b = inflate(partSize, buffer);
+            for (int row = 0; row < partSize; row++) {
+                buffer = new int[partSize];
+                MPI.COMM_WORLD.Recv(buffer, 0, partSize, MPI.INT, 0, 1);
+                a[row] = buffer;
+            }
+            for (int row = 0; row < partSize; row++) {
+                buffer = new int[partSize];
+                MPI.COMM_WORLD.Recv(buffer, 0, partSize, MPI.INT, 0, 1);
+                b[row] = buffer;
+            }
         }
 
         // Multiply own matrices
         int[][] c;
         c = multiply(a, b);
 
-        // Send partial solutions to joining processes
-        if ((rank % n) == 0) {  // Join process
+
+        // Send partial solutions to sum processes
+        buffer = new int[partSize * partSize];
+        if ((rank % n) == 0) {  // sum process
             int[][][] partial = new int[n][][];
 
             // Send to self
@@ -283,29 +312,23 @@ class Matrix {
     }
 
     /*
-     * Read matrix from file.
+     * Get size of file matrix.
      */
-    static int[][] readMatrix(String file) throws FileNotFoundException,
-                                                  IOException {
+    static int[][] readSize(String file) throws FileNotFoundException,
+                                                IOException {
         BufferedReader reader;
         reader = new BufferedReader(new FileReader(file));
 
         // Determine size
         String line = reader.readLine();
-        int[] values = parseTokens(readTokens(line));
-        int size = values.length;
+        return readTokens(line).length;
+    }
 
-        // Build matrix
-        int[][] m = new int[size][size];
-        m[0] = values;
-        int i = 1;
-        while ((line = reader.readLine()) != null) {
-            values = parseTokens(readTokens(line));
-            m[i] = values;
-            i++;
-        }
-
-        return m;
+    /*
+     * Parse values in line.
+     */
+    static int[] parseLine(String line) {
+        return parseTokens(readTokens);
     }
 
     /*
