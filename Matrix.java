@@ -61,7 +61,7 @@ class Matrix {
             reader = new BufferedReader(new FileReader(args[1]));
             line = reader.readLine();
             lineno = 0;
-            while ((line = aread.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 int[] values = parseLine(line);
                 int row = lineno / partSize;
                 for (int col = 0; col < n; col++) {
@@ -81,7 +81,7 @@ class Matrix {
             reader = new BufferedReader(new FileReader(args[2]));
             line = reader.readLine();
             lineno = 0;
-            while ((line = aread.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 int[] values = parseLine(line);
                 int row = lineno / partSize;
                 for (int col = 0; col < n; col++) {
