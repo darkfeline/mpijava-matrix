@@ -314,7 +314,7 @@ class Matrix {
     /*
      * Get size of file matrix.
      */
-    static int[][] readSize(String file) throws FileNotFoundException,
+    static int readSize(String file) throws FileNotFoundException,
                                                 IOException {
         BufferedReader reader;
         reader = new BufferedReader(new FileReader(file));
