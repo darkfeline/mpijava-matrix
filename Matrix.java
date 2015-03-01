@@ -40,6 +40,8 @@ class Matrix {
             size = buffer[0];
         }
 
+        System.printf("%d: size\n", rank)
+
         // Distribute quadrants to every process.
         // Numbers of row/col
         int n = rtotal == 8 ? 2 : 4;
@@ -108,9 +110,13 @@ class Matrix {
             }
         }
 
+        System.printf("%d: dist\n", rank)
+
         // Multiply own matrices
         int[][] c;
         c = multiply(a, b);
+
+        System.printf("%d: mult\n", rank)
 
         // Send partial solutions to sum processes
         buffer = new int[partSize * partSize];
