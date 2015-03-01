@@ -13,7 +13,7 @@ class Matrix {
                                                   FileNotFoundException,
                                                   IOException {
 
-        MPI.Init(args) ;
+        MPI.Init(args);
 
         int rank = MPI.COMM_WORLD.Rank();
         int rtotal = MPI.COMM_WORLD.Size();
