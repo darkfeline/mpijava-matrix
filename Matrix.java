@@ -68,7 +68,6 @@ class Matrix {
                 for (int col = 0; col < n; col++) {
                     for (int i = 0; i < n; i++) {
                         int dst = row * n * n + i * n + col;
-                        System.out.printf("%d: %d %d %d -> %d\n", rank, row, i, col, dst);
                         if (dst == 0) {  // send to self
                             a[lineno] = Arrays.copyOf(values, partSize);
                         } else {
@@ -89,7 +88,6 @@ class Matrix {
                 for (int col = 0; col < n; col++) {
                     for (int i = 0; i < n; i++) {
                         int dst = i * n * n + col * n + row;
-                        System.out.printf("%d: %d %d %d -> %d\n", rank, i, col, row, dst);
                         if (dst == 0) {  // send to self
                             b[lineno] = Arrays.copyOf(values, partSize);
                         } else {
@@ -113,6 +111,8 @@ class Matrix {
                 System.out.printf("%d: recv b %d\n", rank, row);
             }
         }
+
+        System.out.printf("%d: dist done\n", rank);
 
         // Multiply own matrices
         int[][] c;
