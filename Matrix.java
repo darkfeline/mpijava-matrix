@@ -24,8 +24,8 @@ class Matrix {
             System.exit(1);
         }
 
-        int[][] ma;
-        int[][] mb;
+        int[][] ma = new int[0][0];
+        int[][] mb = new int[0][0];
 
         // Read in matrices and distribute size to every process.
         if (rank == 0) {
