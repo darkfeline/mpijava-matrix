@@ -65,6 +65,10 @@ class Matrix {
                     for (int i = 0; i < n; i++) {
                         // Destination process
                         int dst = row * n * n + col * n + i;
+                        if (dst == 0) {
+                            continue;
+                        }
+
                         // Send row, i of A
                         buffer = deflate(qa[row][i]);
                         MPI.COMM_WORLD.Send(buffer, 0, buffer.length, MPI.INT, dst, 1);
@@ -119,6 +123,9 @@ class Matrix {
                 for (int row = 0; row < n; row++) {
                     for (int col = 0; col < n; col++) {
                         int src = row * n * n + col * n;
+                        if (src == 0) {
+                            continue;
+                        }
                         MPI.COMM_WORLD.Recv(buffer, 0, buffer.length, MPI.INT, src, 1);
                         qc[row][col] = inflate(partSize, buffer);
                     }
