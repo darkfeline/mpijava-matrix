@@ -165,50 +165,17 @@ class Matrix {
      * Multiply matrices.
      */
     static int[][] multiply(int[][] a, int[][] b) {
-        return sumPartial(multPartial(a, b));
-    }
-
-    /*
-     * Multiply matrices, return partial result.
-     */
-    static int[][][][][] multPartial(int[][] a, int[][] b) {
-        int[][][][][] partial;
-
-        // Base case.
-        if (a.length == 1) {
-            partial = new int[1][1][1][1][1];
-            partial[0][0][0][0][0] = a[0][0] * b[0][0];
-        } else {
-            int[][][][] qa = msplit(a, 2);
-            int[][][][] qb = msplit(b, 2);
-
-            int n = 2;
-            int[][][][] qc = new int[n][n][][];
-            partial = new int[n][n][n][][];
-
-            for (int row = 0; row < n; row++) {
-                for (int col = 0; col < n; col++) {
-                    for (int i = 0; i < n; i++) {
-                        partial[row][col][i] = multiply(qa[row][i], qb[i][col]);
-                    }
+        int n = a.length;
+        int[][] c = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                c[i][j] = 0;
+                for (int k = 0; k < n; k++) {
+                    c[i][j] += a[i][k] * b[k][j];
                 }
             }
         }
-        return partial;
-    }
-
-    /*
-     * Sum up matrix multiplication partial.
-     */
-    static int[][] sumPartial(int[][][][][] partial) {
-        int n = partial.length;
-        int[][][][] qc = new int[n][n][][];
-        for (int row = 0; row < n; row++) {
-            for (int col = 0; col < n; col++) {
-                    qc[row][col] = msum(partial[row][col]);
-            }
-        }
-        return mjoin(qc);
+        return c;
     }
 
     /*
@@ -251,37 +218,6 @@ class Matrix {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 result[i * size + j] = m[i][j];
-            }
-        }
-        return result;
-    }
-
-    /*
-     * Split a matrix into n * n parts.
-     */
-    static int[][][][] msplit(int[][] m, int n) {
-        int size = m.length;
-        int partSize = size / n;
-        int[][][][] result = new int[n][n][partSize][partSize];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                result[i / partSize][j / partSize][i % partSize][j % partSize] = m[i][j];
-            }
-        }
-        return result;
-    }
-
-    /*
-     * Join split matrices.
-     */
-    static int[][] mjoin(int[][][][] m) {
-        int n = m.length;
-        int partSize = m[0][0].length;
-        int size = partSize * n;
-        int[][] result = new int[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                result[i][j] = m[i / partSize][j / partSize][i % partSize][j % partSize];
             }
         }
         return result;
