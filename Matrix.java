@@ -83,8 +83,8 @@ class Matrix {
                     int dst = row * n * n + i * n + col;
                     if (dst == rank) {  // send to self
                         int[] slice = new int[partSize];
-                        for (int a = 0; a < partSize; a++) {
-                            slice[a] = buffer[col * partsize + a];
+                        for (int x = 0; x < partSize; x++) {
+                            slice[x] = buffer[col * partSize + x];
                         }
                         a[curRow] = slice;
                         curRow++;
@@ -122,7 +122,7 @@ class Matrix {
 
             // Send to root to print
             if (rank == 0) {
-                for (int lineno = 0; lineno < size; lineno++) {
+                for (lineno = 0; lineno < size; lineno++) {
                     int row = lineno / partSize;
                     buffer = new int[size];
 
