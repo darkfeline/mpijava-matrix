@@ -25,17 +25,7 @@ class Matrix {
             System.exit(1);
         }
 
-        // Distribute size to every process.
-        if (rank == 0) {
-            size = readSize(args[1]);
-            buffer[0] = size;
-            for (int i = 1; i < rtotal; i++) {
-                MPI.COMM_WORLD.Send(buffer, 0, 1, MPI.INT, i, 1);
-            }
-        } else {
-            MPI.COMM_WORLD.Recv(buffer, 0, 1, MPI.INT, 0, 1);
-            size = buffer[0];
-        }
+        size = readSize(args[1]);
 
         System.err.printf("%d: size\n", rank);
 
@@ -45,71 +35,66 @@ class Matrix {
         int partSize = size / n;
         int[][] a = new int[partSize][partSize];
         int[][] b = new int[partSize][partSize];
-        if (rank == 0) {
-            String line;
-            int lineno;
-            BufferedReader reader;
 
-            // Process [row][col][i] gets [row][i] from A and [i][col] from B
-            // Thus [row][col] from A goes to process [row][i][col]
-            // Thus [row][col] from B goes to process [i][col][row]
-            // I wish I had a better grasp of linear algebra here...
-            // It's mathematically more sensible to do [row][i][col] for process,
-            // but we need to sum up the array [row][col] over i, so...
+        String line;
+        int lineno;
+        int curRow;
+        BufferedReader reader;
 
-            // Matrix A
-            reader = new BufferedReader(new FileReader(args[1]));
-            lineno = 0;
-            while ((line = reader.readLine()) != null) {
-                buffer = parseLine(line);
-                int row = lineno / partSize;
-                for (int col = 0; col < n; col++) {
-                    for (int i = 0; i < n; i++) {
-                        int dst = row * n * n + i * n + col;
-                        if (dst == 0) {  // send to self
-                            a[lineno] = Arrays.copyOf(buffer, partSize);
-                        } else {
-                            MPI.COMM_WORLD.Send(buffer, col * partSize, partSize, MPI.INT, dst, 1);
+        // Process [row][col][i] gets [row][i] from A and [i][col] from B
+        // Thus [row][col] from A goes to process [row][i][col]
+        // Thus [row][col] from B goes to process [i][col][row]
+        // I wish I had a better grasp of linear algebra here...
+        // It's mathematically more sensible to do [row][i][col] for process,
+        // but we need to sum up the array [row][col] over i, so...
+
+        // Matrix A
+        reader = new BufferedReader(new FileReader(args[1]));
+        lineno = 0;
+        curRow = 0;
+        while ((line = reader.readLine()) != null) {
+            buffer = parseLine(line);
+            int row = lineno / partSize;
+            for (int col = 0; col < n; col++) {
+                for (int i = 0; i < n; i++) {
+                    int dst = row * n * n + i * n + col;
+                    if (dst == rank) {  // send to self
+                        int[] slice = new int[partSize];
+                        for (int a = 0; a < partSize; a++) {
+                            slice[a] = buffer[col * partsize + a];
                         }
+                        a[curRow] = slice;
+                        curRow++;
                     }
                 }
-                System.err.printf("%d: send a %d done\n", rank, lineno);
-                lineno++;
             }
-
-            // Matrix B
-            reader = new BufferedReader(new FileReader(args[2]));
-            lineno = 0;
-            while ((line = reader.readLine()) != null) {
-                buffer = parseLine(line);
-                int row = lineno / partSize;
-                for (int col = 0; col < n; col++) {
-                    for (int i = 0; i < n; i++) {
-                        int dst = i * n * n + col * n + row;
-                        if (dst == 0) {  // send to self
-                            b[lineno] = Arrays.copyOf(buffer, partSize);
-                        } else {
-                            MPI.COMM_WORLD.Send(buffer, col * partSize, partSize, MPI.INT, dst, 1);
-                        }
-                    }
-                }
-                System.err.printf("%d: send b %d done\n", rank, lineno);
-                lineno++;
-            }
-        } else {
-            for (int row = 0; row < partSize; row++) {
-                buffer = new int[partSize];
-                MPI.COMM_WORLD.Recv(buffer, 0, partSize, MPI.INT, 0, 1);
-                a[row] = buffer;
-            }
-            for (int row = 0; row < partSize; row++) {
-                buffer = new int[partSize];
-                MPI.COMM_WORLD.Recv(buffer, 0, partSize, MPI.INT, 0, 1);
-                b[row] = buffer;
-            }
+            lineno++;
         }
 
-        System.err.printf("%d: dist\n", rank);
+        // Matrix B
+        reader = new BufferedReader(new FileReader(args[2]));
+        lineno = 0;
+        curRow = 0;
+        while ((line = reader.readLine()) != null) {
+            buffer = parseLine(line);
+            int row = lineno / partSize;
+            for (int col = 0; col < n; col++) {
+                for (int i = 0; i < n; i++) {
+                    int dst = row * n * n + i * n + col;
+                    if (dst == rank) {  // send to self
+                        int[] slice = new int[partSize];
+                        for (int a = 0; a < partSize; a++) {
+                            slice[a] = buffer[col * partsize + a];
+                        }
+                        a[curRow] = slice;
+                        curRow++;
+                    }
+                }
+            }
+            lineno++;
+        }
+
+        System.err.printf("%d: read\n", rank);
 
         // Multiply own matrices
         int[][] c;
