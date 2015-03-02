@@ -69,6 +69,8 @@ class Matrix {
             lineno++;
         }
 
+        System.err.printf("%d: read a\n", rank);
+
         // Matrix B
         reader = new BufferedReader(new FileReader(args[2]));
         lineno = 0;
@@ -90,7 +92,7 @@ class Matrix {
             lineno++;
         }
 
-        System.err.printf("%d: read\n", rank);
+        System.err.printf("%d: read b\n", rank);
 
         // Multiply own matrices
         int[][] c;
