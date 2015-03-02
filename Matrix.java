@@ -59,11 +59,9 @@ class Matrix {
                 for (int i = 0; i < n; i++) {
                     int dst = row * n * n + i * n + col;
                     if (dst == rank) {  // send to self
-                        int[] slice = new int[partSize];
                         for (int x = 0; x < partSize; x++) {
-                            slice[x] = buffer[col * partSize + x];
+                            a[curRow][x] = buffer[col * partSize + x];
                         }
-                        a[curRow] = slice;
                         curRow++;
                     }
                 }
@@ -80,13 +78,11 @@ class Matrix {
             int row = lineno / partSize;
             for (int col = 0; col < n; col++) {
                 for (int i = 0; i < n; i++) {
-                    int dst = row * n * n + i * n + col;
+                    int dst = i * n * n + col * n + row;
                     if (dst == rank) {  // send to self
-                        int[] slice = new int[partSize];
                         for (int x = 0; x < partSize; x++) {
-                            slice[x] = buffer[col * partSize + x];
+                            b[curRow][x] = buffer[col * partSize + x];
                         }
-                        b[curRow] = slice;
                         curRow++;
                     }
                 }
